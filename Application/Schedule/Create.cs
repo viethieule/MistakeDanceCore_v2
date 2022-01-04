@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Application.Interfaces;
 using Domain;
 using Shared;
 
@@ -58,16 +59,38 @@ namespace Application
         private readonly IRepository<Trainer> _trainerRepo;
         private readonly IRepository<Class> _classRepo;
         private readonly IRepository<Session> _sessionRepo;
+        private readonly IUnitOfWork _unitOfWork;
         public ScheduleService(
             IRepository<Schedule> scheduleRepo,
             IRepository<Trainer> trainerRepo,
             IRepository<Class> classRepo,
-            IRepository<Session> sessionRepo)
+            IRepository<Session> sessionRepo,
+            IUnitOfWork unitOfWork)
         {
             _scheduleRepo = scheduleRepo;
             _trainerRepo = trainerRepo;
             _classRepo = classRepo;
             _sessionRepo = sessionRepo;
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<CreateScheduleRs> Run(CreateScheduleRq rq)
+        {
+            using (IDatabaseTransaction transaction = _unitOfWork.BeginTransaction())
+            {
+                try
+                {
+                    CreateScheduleRs rs = await Create(rq);
+                    transaction.Commit();
+
+                    return rs;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
 
         public async Task<CreateScheduleRs> Create(CreateScheduleRq rq)
@@ -75,17 +98,17 @@ namespace Application
             ScheduleDTO scheduleDTO = rq.Schedule;
             if (!scheduleDTO.ClassId.HasValue)
             {
-                Class clas = await _classRepo.CreateAsync(new Class(rq.Class.Name));
+                Class clas = await _unitOfWork.Classes.CreateAsync(new Class(rq.Class.Name));
                 scheduleDTO.ClassId = clas.Id;
             }
 
             if (!scheduleDTO.TrainerId.HasValue)
             {
-                Trainer trainer = await _trainerRepo.CreateAsync(new Trainer(rq.Trainer.Name));
+                Trainer trainer = await _unitOfWork.Trainers.CreateAsync(new Trainer(rq.Trainer.Name));
                 scheduleDTO.TrainerId = trainer.Id;
             }
 
-            Schedule schedule = await _scheduleRepo.CreateAsync(new Schedule(
+            Schedule schedule = await _unitOfWork.Schedules.CreateAsync(new Schedule(
                 song: scheduleDTO.Song,
                 openingDate: scheduleDTO.OpeningDate,
                 startTime: scheduleDTO.StartTime,
@@ -99,7 +122,7 @@ namespace Application
                 List<Session> sessions = schedule.GenerateSessions(rq.Schedule.TotalSessions.Value);
                 foreach (Session session in sessions)
                 {
-                    await _sessionRepo.CreateAsync(session);
+                    await _unitOfWork.Sessions.CreateAsync(session);
                 }
             }
 

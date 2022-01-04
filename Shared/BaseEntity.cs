@@ -1,5 +1,7 @@
-﻿namespace Shared;
-public class BaseEntity
+﻿namespace Shared 
 {
-    public int Id { get; set; }
+    public class BaseEntity
+    {
+        public int Id { get; set; }
+    }
 }
