@@ -5,6 +5,6 @@ namespace Shared
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        Task<T> CreateAsync(T entity);
+        Task CreateAsync(T entity);
     }
 }

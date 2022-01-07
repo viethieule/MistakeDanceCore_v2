@@ -55,22 +55,9 @@ namespace Application
 
     public class ScheduleService
     {
-        private readonly IRepository<Schedule> _scheduleRepo;
-        private readonly IRepository<Trainer> _trainerRepo;
-        private readonly IRepository<Class> _classRepo;
-        private readonly IRepository<Session> _sessionRepo;
         private readonly IUnitOfWork _unitOfWork;
-        public ScheduleService(
-            IRepository<Schedule> scheduleRepo,
-            IRepository<Trainer> trainerRepo,
-            IRepository<Class> classRepo,
-            IRepository<Session> sessionRepo,
-            IUnitOfWork unitOfWork)
+        public ScheduleService(IUnitOfWork unitOfWork)
         {
-            _scheduleRepo = scheduleRepo;
-            _trainerRepo = trainerRepo;
-            _classRepo = classRepo;
-            _sessionRepo = sessionRepo;
             _unitOfWork = unitOfWork;
         }
 
@@ -98,24 +85,28 @@ namespace Application
             ScheduleDTO scheduleDTO = rq.Schedule;
             if (!scheduleDTO.ClassId.HasValue)
             {
-                Class clas = await _unitOfWork.Classes.CreateAsync(new Class(rq.Class.Name));
+                Class clas = new Class(rq.Class.Name);
+                await _unitOfWork.Classes.CreateAsync(clas);
                 scheduleDTO.ClassId = clas.Id;
             }
 
             if (!scheduleDTO.TrainerId.HasValue)
             {
-                Trainer trainer = await _unitOfWork.Trainers.CreateAsync(new Trainer(rq.Trainer.Name));
+                Trainer trainer = new Trainer(rq.Trainer.Name);
+                await _unitOfWork.Trainers.CreateAsync(trainer);
                 scheduleDTO.TrainerId = trainer.Id;
             }
 
-            Schedule schedule = await _unitOfWork.Schedules.CreateAsync(new Schedule(
+            Schedule schedule = new Schedule(
                 song: scheduleDTO.Song,
                 openingDate: scheduleDTO.OpeningDate,
                 startTime: scheduleDTO.StartTime,
                 daysPerWeek: scheduleDTO.DaysPerWeek,
                 branchId: scheduleDTO.BranchId.Value,
                 classId: scheduleDTO.ClassId.Value,
-                trainerId: scheduleDTO.TrainerId.Value));
+                trainerId: scheduleDTO.TrainerId.Value);
+
+            await _unitOfWork.Schedules.CreateAsync(schedule);
 
             if (rq.Schedule.TotalSessions.HasValue)
             {
