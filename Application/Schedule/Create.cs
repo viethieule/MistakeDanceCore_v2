@@ -53,7 +53,12 @@ namespace Application
         public ScheduleDTO Schedule { get; set; }
     }
 
-    public class ScheduleService
+    public interface IScheduleService
+    {
+        Task<CreateScheduleRs> RunCreate(CreateScheduleRq rq);
+    }
+
+    public class ScheduleService : IScheduleService
     {
         private readonly IUnitOfWork _unitOfWork;
         public ScheduleService(IUnitOfWork unitOfWork)
@@ -61,7 +66,7 @@ namespace Application
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<CreateScheduleRs> Run(CreateScheduleRq rq)
+        public async Task<CreateScheduleRs> RunCreate(CreateScheduleRq rq)
         {
             using (IDatabaseTransaction transaction = _unitOfWork.BeginTransaction())
             {
@@ -87,6 +92,7 @@ namespace Application
             {
                 Class clas = new Class(rq.Class.Name);
                 await _unitOfWork.Classes.CreateAsync(clas);
+                await _unitOfWork.SaveChangesAsync();
                 scheduleDTO.ClassId = clas.Id;
             }
 
@@ -94,6 +100,7 @@ namespace Application
             {
                 Trainer trainer = new Trainer(rq.Trainer.Name);
                 await _unitOfWork.Trainers.CreateAsync(trainer);
+                await _unitOfWork.SaveChangesAsync();
                 scheduleDTO.TrainerId = trainer.Id;
             }
 
@@ -107,6 +114,7 @@ namespace Application
                 trainerId: scheduleDTO.TrainerId.Value);
 
             await _unitOfWork.Schedules.CreateAsync(schedule);
+            await _unitOfWork.SaveChangesAsync();
 
             if (rq.Schedule.TotalSessions.HasValue)
             {
@@ -115,6 +123,8 @@ namespace Application
                 {
                     await _unitOfWork.Sessions.CreateAsync(session);
                 }
+
+                await _unitOfWork.SaveChangesAsync();
             }
 
             return new CreateScheduleRs

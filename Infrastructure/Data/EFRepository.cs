@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    class EFRepository<TEntity> : IRepository<TEntity> where TEntity: BaseEntity
+    public class EFRepository<TEntity> : IRepository<TEntity> where TEntity: BaseEntity
     {
         protected readonly DataContext _context;
         
