@@ -16,8 +16,5 @@ namespace Domain
         public DateTime Date { get; private set; }
         public int Number { get; private set; }
         public int ScheduleId { get; private set; }
-
-        private List<int> _registrationIds = new();
-        public IReadOnlyCollection<int> RegistrationIds => _registrationIds;
     }
 }

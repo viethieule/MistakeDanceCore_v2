@@ -1,3 +1,4 @@
+using System.Reflection;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,5 +16,12 @@ namespace Infrastructure.Data
         public DbSet<Trainer> Trainers { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Class> Classes { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
     }
 }

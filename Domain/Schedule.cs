@@ -37,9 +37,6 @@ namespace Domain
         public int ClassId { get; private set; }
         public int TrainerId { get; private set; }
 
-        private List<int> _sessionIds = new();
-        public IReadOnlyCollection<int> SessionIds => _sessionIds.AsReadOnly();
-
         public List<Session> GenerateSessions(int totalSessions)
         {
             List<Session> sessions = new List<Session>();

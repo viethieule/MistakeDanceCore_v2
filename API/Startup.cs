@@ -41,7 +41,7 @@ namespace API
 
             services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("ConnectionString"));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddScoped<IScheduleService, ScheduleService>();
