@@ -23,7 +23,8 @@ namespace Infrastructure.Data.Configuration
 
             builder
                 .HasMany<Session>()
-                .WithOne("")
+                .WithOne()
+                .HasForeignKey(x => x.ScheduleId)
                 .IsRequired();
         }
     }
