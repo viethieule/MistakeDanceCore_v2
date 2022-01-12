@@ -14,6 +14,8 @@ namespace API.Controllers
         {
             _scheduleService = scheduleService;
         }
+
+        [HttpPost]
         public async Task<IActionResult> Create(CreateScheduleRq rq)
         {
             return Ok(await _scheduleService.RunCreate(rq));

@@ -9,7 +9,7 @@ namespace Application
 {
     public class ScheduleDTO
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Song { get; set; }
         public DateTime OpeningDate { get; set; }
         public TimeSpan StartTime { get; set; }
@@ -22,7 +22,7 @@ namespace Application
 
     public class BranchDTO
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Name { get; set; }
         public string Abbreviation { get; set; }
         public string Address { get; set; }
@@ -38,13 +38,13 @@ namespace Application
 
     public class TrainerDTO
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Name { get; set; }
     }
 
     public class ClassDTO
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Name { get; set; }
     }
 
@@ -102,6 +102,15 @@ namespace Application
                 await _unitOfWork.Trainers.CreateAsync(trainer);
                 await _unitOfWork.SaveChangesAsync();
                 scheduleDTO.TrainerId = trainer.Id;
+            }
+
+            if (!scheduleDTO.BranchId.HasValue)
+            {
+                BranchDTO branchDTO = rq.Branch;
+                Branch branch = new Branch(name: branchDTO.Name, abbreviation: branchDTO.Abbreviation, address: branchDTO.Address);
+                await _unitOfWork.Branches.CreateAsync(branch);
+                await _unitOfWork.SaveChangesAsync();
+                scheduleDTO.BranchId = branch.Id;
             }
 
             Schedule schedule = new Schedule(

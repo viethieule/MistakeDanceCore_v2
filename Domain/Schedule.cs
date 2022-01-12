@@ -29,7 +29,7 @@ namespace Domain
             TrainerId = trainerId;
         }
 
-        public string? Song { get; private set; }
+        public string Song { get; private set; }
         public DateTime OpeningDate { get; private set; }
         public TimeSpan StartTime { get; private set; }
         public List<DayOfWeek> DaysPerWeek { get; private set; } = new List<DayOfWeek>();
