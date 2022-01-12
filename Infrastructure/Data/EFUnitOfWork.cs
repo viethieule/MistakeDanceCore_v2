@@ -1,20 +1,13 @@
 ﻿using Application.Interfaces;
 using Domain;
-using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore.Storage;
-using Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure
+namespace Infrastructure.Data
 {
-    public class UnitOfWork : IUnitOfWork
+    public class EFUnitOfWork : IUnitOfWork
     {
         private readonly DataContext _context;
-        public UnitOfWork(DataContext context)
+        public EFUnitOfWork(DataContext context)
         {
             _context = context;
 

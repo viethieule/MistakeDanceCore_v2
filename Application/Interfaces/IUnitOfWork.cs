@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Domain;
-using Shared;
 
 namespace Application.Interfaces
 {

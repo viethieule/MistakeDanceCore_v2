@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shared;
 
-namespace Shared
+namespace Application.Interfaces
 {
     public interface IRepository<T> where T : BaseEntity
     {
