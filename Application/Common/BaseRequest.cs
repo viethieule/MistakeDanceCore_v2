@@ -1,6 +1,6 @@
 namespace Application.Common
 {
-    public class BaseRequest
+    public abstract class BaseRequest
     {
     }
 }

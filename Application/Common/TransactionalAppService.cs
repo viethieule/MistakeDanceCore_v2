@@ -11,7 +11,7 @@ namespace Application.Common
         {
         }
 
-        protected sealed override async Task<TRs> RunAsync(TRq rq)
+        public sealed override async Task<TRs> RunAsync(TRq rq)
         {
             using (IDatabaseTransaction transaction = _unitOfWork.BeginTransaction())
             {

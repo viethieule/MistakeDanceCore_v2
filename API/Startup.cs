@@ -1,4 +1,5 @@
-using Application;
+using API.Extensions;
+using Application.Common;
 using Application.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Builder;
@@ -34,8 +35,9 @@ namespace API
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
-            
+
             services.AddScoped<IUnitOfWork, EFUnitOfWork>();
+            services.AddScopedAsSelfByConvention(typeof(BaseAppService<,>).Assembly, type => type.Name.EndsWith("Service"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

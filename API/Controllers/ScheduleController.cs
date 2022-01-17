@@ -1,23 +1,21 @@
+using System;
 using System.Threading.Tasks;
+using API.Common;
 using Application;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]/[action]")]
-    [ApiController]
-    public class ScheduleController : ControllerBase
+    public class ScheduleController : BaseApiController
     {
-
-        public ScheduleController()
+        public ScheduleController(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateScheduleRq rq)
         {
-            return Ok();
+            return Ok(await this.RunAsync<CreateScheduleService, CreateScheduleRq, CreateScheduleRs>(rq));
         }
     }
 }

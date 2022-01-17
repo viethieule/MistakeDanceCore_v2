@@ -1,6 +1,6 @@
 namespace Application.Common
 {
-    public class BaseResponse
+    public abstract class BaseResponse
     {
     }
 }

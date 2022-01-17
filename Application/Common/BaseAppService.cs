@@ -13,6 +13,6 @@ namespace Application.Common
             _unitOfWork = unitOfWork;
         }
 
-        protected abstract Task<TRs> RunAsync(TRq rq);
+        public abstract Task<TRs> RunAsync(TRq rq);
     }
 }
