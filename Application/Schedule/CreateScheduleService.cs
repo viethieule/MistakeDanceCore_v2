@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Application.Common;
 using Application.Interfaces;
 using Domain;
-using Shared;
 
 namespace Application
 {
@@ -83,37 +81,5 @@ namespace Application
                 Schedule = scheduleDTO
             };
         }
-    }
-    public class ScheduleDTO
-    {
-        public int? Id { get; set; }
-        public string Song { get; set; }
-        public DateTime OpeningDate { get; set; }
-        public TimeSpan StartTime { get; set; }
-        public List<DayOfWeek> DaysPerWeek { get; set; } = new List<DayOfWeek>();
-        public int? BranchId { get; set; }
-        public int? ClassId { get; set; }
-        public int? TrainerId { get; set; }
-        public int? TotalSessions { get; set; }
-    }
-
-    public class BranchDTO
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-        public string Abbreviation { get; set; }
-        public string Address { get; set; }
-    }
-
-    public class TrainerDTO
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-    }
-
-    public class ClassDTO
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
     }
 }
