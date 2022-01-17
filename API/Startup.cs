@@ -34,8 +34,7 @@ namespace API
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
-
-            services.AddScoped<IScheduleService, ScheduleService>();
+            
             services.AddScoped<IUnitOfWork, EFUnitOfWork>();
         }
 

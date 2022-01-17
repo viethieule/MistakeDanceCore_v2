@@ -1,34 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Application.Common;
 using Application.Interfaces;
 using Domain;
 using Shared;
 
 namespace Application
 {
-    public class ScheduleDTO
-    {
-        public int? Id { get; set; }
-        public string Song { get; set; }
-        public DateTime OpeningDate { get; set; }
-        public TimeSpan StartTime { get; set; }
-        public List<DayOfWeek> DaysPerWeek { get; set; } = new List<DayOfWeek>();
-        public int? BranchId { get; set; }
-        public int? ClassId { get; set; }
-        public int? TrainerId { get; set; }
-        public int? TotalSessions { get; set; }
-    }
-
-    public class BranchDTO
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-        public string Abbreviation { get; set; }
-        public string Address { get; set; }
-    }
-
-    public class CreateScheduleRq
+    public class CreateScheduleRq : BaseRequest
     {
         public ScheduleDTO Schedule { get; set; }
         public BranchDTO Branch { get; set; }
@@ -36,56 +16,18 @@ namespace Application
         public TrainerDTO Trainer { get; set; }
     }
 
-    public class TrainerDTO
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-    }
-
-    public class ClassDTO
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-    }
-
-    public class CreateScheduleRs
+    public class CreateScheduleRs : BaseResponse
     {
         public ScheduleDTO Schedule { get; set; }
     }
 
-    public interface IScheduleService
+    public class CreateScheduleService : TransactionalAppService<CreateScheduleRq, CreateScheduleRs>
     {
-        Task<CreateScheduleRs> RunCreate(CreateScheduleRq rq);
-    }
-
-    public class ScheduleService : IScheduleService
-    {
-        private readonly IUnitOfWork _unitOfWork;
-        public ScheduleService(IUnitOfWork unitOfWork)
+        public CreateScheduleService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _unitOfWork = unitOfWork;
         }
 
-        public async Task<CreateScheduleRs> RunCreate(CreateScheduleRq rq)
-        {
-            using (IDatabaseTransaction transaction = _unitOfWork.BeginTransaction())
-            {
-                try
-                {
-                    CreateScheduleRs rs = await Create(rq);
-                    transaction.Commit();
-
-                    return rs;
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-        }
-
-        public async Task<CreateScheduleRs> Create(CreateScheduleRq rq)
+        protected override async Task<CreateScheduleRs> DoTransactionalRunAsync(CreateScheduleRq rq)
         {
             ScheduleDTO scheduleDTO = rq.Schedule;
             if (!scheduleDTO.ClassId.HasValue)
@@ -141,5 +83,37 @@ namespace Application
                 Schedule = scheduleDTO
             };
         }
+    }
+    public class ScheduleDTO
+    {
+        public int? Id { get; set; }
+        public string Song { get; set; }
+        public DateTime OpeningDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public List<DayOfWeek> DaysPerWeek { get; set; } = new List<DayOfWeek>();
+        public int? BranchId { get; set; }
+        public int? ClassId { get; set; }
+        public int? TrainerId { get; set; }
+        public int? TotalSessions { get; set; }
+    }
+
+    public class BranchDTO
+    {
+        public int? Id { get; set; }
+        public string Name { get; set; }
+        public string Abbreviation { get; set; }
+        public string Address { get; set; }
+    }
+
+    public class TrainerDTO
+    {
+        public int? Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class ClassDTO
+    {
+        public int? Id { get; set; }
+        public string Name { get; set; }
     }
 }

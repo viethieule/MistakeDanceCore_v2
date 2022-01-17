@@ -8,17 +8,16 @@ namespace API.Controllers
     [ApiController]
     public class ScheduleController : ControllerBase
     {
-        private readonly IScheduleService _scheduleService;
 
-        public ScheduleController(IScheduleService scheduleService)
+        public ScheduleController()
         {
-            _scheduleService = scheduleService;
+
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateScheduleRq rq)
         {
-            return Ok(await _scheduleService.RunCreate(rq));
+            return Ok();
         }
     }
 }
