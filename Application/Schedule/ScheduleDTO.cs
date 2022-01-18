@@ -11,8 +11,11 @@ namespace Application
         public TimeSpan StartTime { get; set; }
         public List<DayOfWeek> DaysPerWeek { get; set; } = new List<DayOfWeek>();
         public int? BranchId { get; set; }
+        public string BranchName { get; set; }
         public int? ClassId { get; set; }
+        public string ClassName { get; set; }
         public int? TrainerId { get; set; }
+        public string TrainerName { get; set; }
         public int? TotalSessions { get; set; }
     }
 }

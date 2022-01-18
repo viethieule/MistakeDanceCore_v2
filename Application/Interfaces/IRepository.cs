@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Domain;
 using Shared;
 
 namespace Application.Interfaces
@@ -10,5 +11,9 @@ namespace Application.Interfaces
     {
         Task CreateAsync(T entity);
         Task<List<T>> ListAsync(Expression<Func<T, bool>> predicate);
+        Task<T> SingleByIdAsync(int id);
+        void UpdateRange(IEnumerable<T> entites);
+        void RemoveRange(IEnumerable<T> entities);
+        Task AddRangeAsync(IEnumerable<T> entities);
     }
 }

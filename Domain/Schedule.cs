@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shared;
 
 namespace Domain
@@ -68,6 +69,28 @@ namespace Domain
             }
 
             return sessions;
+        }
+
+        public void Update(Schedule newSchedule)
+        {
+            Song = newSchedule.Song;
+            TrainerId = newSchedule.TrainerId;
+            ClassId = newSchedule.ClassId;
+            StartTime = newSchedule.StartTime;
+            BranchId = newSchedule.BranchId;
+            DaysPerWeek = newSchedule.DaysPerWeek;
+
+            if (OpeningDate.Date != newSchedule.OpeningDate.Date && DateTime.Now > OpeningDate.Add(StartTime))
+            {
+                throw new Exception("ChangeOpeningDateOfStartedScheduleException");
+            }
+        }
+
+        public bool ShouldUpdateSessions(Schedule newSchedule)
+        {
+            return OpeningDate != newSchedule.OpeningDate ||
+                DaysPerWeek.Count != newSchedule.DaysPerWeek.Count ||
+                !DaysPerWeek.All(x => newSchedule.DaysPerWeek.Contains(x));
         }
     }
 }

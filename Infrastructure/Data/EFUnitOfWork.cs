@@ -23,6 +23,7 @@ namespace Infrastructure.Data
         public IRepository<Branch> Branches { get; private set; }
         public IRepository<Class> Classes { get; private set; }
         public IRepository<Trainer> Trainers { get; private set; }
+        public IRepository<Registration> Registrations { get; private set; }
 
         public IDatabaseTransaction BeginTransaction()
         {

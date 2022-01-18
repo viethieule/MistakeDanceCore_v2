@@ -12,5 +12,6 @@ namespace Application.Interfaces
         IRepository<Branch> Branches { get; }
         IRepository<Class> Classes { get; }
         IRepository<Trainer> Trainers { get; }
+        IRepository<Registration> Registrations { get; }
     }
 }
