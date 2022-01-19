@@ -7,36 +7,17 @@ namespace Domain
 {
     public class Schedule : BaseEntity
     {
-        // required by EF
-        private Schedule()
-        {
-        }
-
-        public Schedule(
-            string song,
-            DateTime openingDate,
-            TimeSpan startTime,
-            List<DayOfWeek> daysPerWeek,
-            int branchId,
-            int classId,
-            int trainerId)
-        {
-            Song = song;
-            OpeningDate = openingDate;
-            StartTime = startTime;
-            DaysPerWeek = daysPerWeek;
-            BranchId = branchId;
-            ClassId = classId;
-            TrainerId = trainerId;
-        }
-
-        public string Song { get; private set; }
-        public DateTime OpeningDate { get; private set; }
-        public TimeSpan StartTime { get; private set; }
-        public List<DayOfWeek> DaysPerWeek { get; private set; } = new List<DayOfWeek>();
-        public int BranchId { get; private set; }
-        public int ClassId { get; private set; }
-        public int TrainerId { get; private set; }
+        public string Song { get; set; }
+        public DateTime OpeningDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public List<DayOfWeek> DaysPerWeek { get; set; } = new List<DayOfWeek>();
+        public int BranchId { get; set; }
+        public Branch Branch { get; set; }
+        public int ClassId { get; set; }
+        public Class Class { get; set; }
+        public int TrainerId { get; set; }
+        public Trainer Trainer { get; set; }
+        public List<Session> Sessions { get; set; }
 
         public List<Session> GenerateSessions(int totalSessions)
         {

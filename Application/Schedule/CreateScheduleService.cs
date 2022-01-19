@@ -21,8 +21,30 @@ namespace Application
 
     public class CreateScheduleService : TransactionalAppService<CreateScheduleRq, CreateScheduleRs>
     {
-        public CreateScheduleService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly ScheduleDTC _scheduleDTC;
+        private readonly BranchDTC _branchDTC;
+        private readonly TrainerDTC _trainerDTC;
+        private readonly ClassDTC _classDTC;
+        private readonly SessionDTC _sessionDTC;
+        private readonly ISessionGenerator _sessionGenerator;
+
+        public CreateScheduleService
+        (
+            ScheduleDTC scheduleDTC,
+            BranchDTC branchDTC,
+            TrainerDTC trainerDTC,
+            ClassDTC classDTC,
+            SessionDTC sessionDTC,
+            ISessionGenerator sessionGenerator,
+            IUnitOfWork unitOfWork
+        ) : base(unitOfWork)
         {
+            _scheduleDTC = scheduleDTC;
+            _branchDTC = branchDTC;
+            _trainerDTC = trainerDTC;
+            _classDTC = classDTC;
+            _sessionDTC = sessionDTC;
+            _sessionGenerator = sessionGenerator;
         }
 
         protected override async Task<CreateScheduleRs> DoTransactionalRunAsync(CreateScheduleRq rq)
@@ -30,50 +52,28 @@ namespace Application
             ScheduleDTO scheduleDTO = rq.Schedule;
             if (!scheduleDTO.ClassId.HasValue)
             {
-                Class clas = new Class(rq.Class.Name);
-                await _unitOfWork.Classes.CreateAsync(clas);
-                await _unitOfWork.SaveChangesAsync();
-                scheduleDTO.ClassId = clas.Id;
+                await _classDTC.CreateAsync(rq.Class);
+                scheduleDTO.ClassId = rq.Class.Id;
             }
 
             if (!scheduleDTO.TrainerId.HasValue)
             {
-                Trainer trainer = new Trainer(rq.Trainer.Name);
-                await _unitOfWork.Trainers.CreateAsync(trainer);
-                await _unitOfWork.SaveChangesAsync();
-                scheduleDTO.TrainerId = trainer.Id;
+                await _trainerDTC.CreateAsync(rq.Trainer);
+                scheduleDTO.TrainerId = rq.Trainer.Id;
             }
 
             if (!scheduleDTO.BranchId.HasValue)
             {
-                BranchDTO branchDTO = rq.Branch;
-                Branch branch = new Branch(name: branchDTO.Name, abbreviation: branchDTO.Abbreviation, address: branchDTO.Address);
-                await _unitOfWork.Branches.CreateAsync(branch);
-                await _unitOfWork.SaveChangesAsync();
-                scheduleDTO.BranchId = branch.Id;
+                await _branchDTC.CreateAsync(rq.Branch);
+                scheduleDTO.BranchId = rq.Branch.Id;
             }
 
-            Schedule schedule = new Schedule(
-                song: scheduleDTO.Song,
-                openingDate: scheduleDTO.OpeningDate,
-                startTime: scheduleDTO.StartTime,
-                daysPerWeek: scheduleDTO.DaysPerWeek,
-                branchId: scheduleDTO.BranchId.Value,
-                classId: scheduleDTO.ClassId.Value,
-                trainerId: scheduleDTO.TrainerId.Value);
-
-            await _unitOfWork.Schedules.CreateAsync(schedule);
-            await _unitOfWork.SaveChangesAsync();
+            await _scheduleDTC.CreateAsync(scheduleDTO);
 
             if (rq.Schedule.TotalSessions.HasValue)
             {
-                List<Session> sessions = schedule.GenerateSessions(rq.Schedule.TotalSessions.Value);
-                foreach (Session session in sessions)
-                {
-                    await _unitOfWork.Sessions.CreateAsync(session);
-                }
-
-                await _unitOfWork.SaveChangesAsync();
+                List<SessionDTO> sessions = _sessionGenerator.Generate(rq.Schedule);
+                await _sessionDTC.CreateRangeAsync(sessions);
             }
 
             return new CreateScheduleRs
