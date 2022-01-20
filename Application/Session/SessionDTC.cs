@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Application.Common;
 using Application.Interfaces;
@@ -21,6 +22,12 @@ namespace Application
             }
 
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<List<SessionDTO>> ListByScheduleIdAsync(int scheduleId)
+        {
+            List<Session> efos = await _unitOfWork.Sessions.ListAsync(x => x.ScheduleId == scheduleId);
+            return efos.Select(MapToDTO).ToList();
         }
 
         protected override Session MapFromDTO(SessionDTO dto)

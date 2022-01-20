@@ -15,5 +15,6 @@ namespace Application.Interfaces
         void UpdateRange(IEnumerable<T> entites);
         void RemoveRange(IEnumerable<T> entities);
         Task AddRangeAsync(IEnumerable<T> entities);
+        void Update(T entity);
     }
 }

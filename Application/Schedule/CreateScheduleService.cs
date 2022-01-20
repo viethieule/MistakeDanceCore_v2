@@ -26,7 +26,7 @@ namespace Application
         private readonly TrainerDTC _trainerDTC;
         private readonly ClassDTC _classDTC;
         private readonly SessionDTC _sessionDTC;
-        private readonly ISessionGenerator _sessionGenerator;
+        private readonly ISessionsGenerator _sessionGenerator;
 
         public CreateScheduleService
         (
@@ -35,7 +35,7 @@ namespace Application
             TrainerDTC trainerDTC,
             ClassDTC classDTC,
             SessionDTC sessionDTC,
-            ISessionGenerator sessionGenerator,
+            ISessionsGenerator sessionGenerator,
             IUnitOfWork unitOfWork
         ) : base(unitOfWork)
         {

@@ -22,6 +22,16 @@ namespace Application
             dto.Id = ent.Id;
         }
 
+        public async Task UpdateAsync(ScheduleDTO dto)
+        {
+            ValidateAndThrow(dto);
+            Schedule schedule = await _unitOfWork.Schedules.SingleByIdAsync(dto.Id.Value);
+            MapFromDTO(dto);
+
+            _unitOfWork.Schedules.Update(schedule);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         protected override Schedule MapFromDTO(ScheduleDTO dto)
         {
             throw new System.NotImplementedException();

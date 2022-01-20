@@ -3,7 +3,7 @@ using Domain;
 
 namespace Application.Interfaces
 {
-    public interface ISessionGenerator
+    public interface ISessionsGenerator
     {
         List<SessionDTO> Generate(ScheduleDTO schedule);
     }

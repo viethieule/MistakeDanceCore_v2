@@ -47,5 +47,10 @@ namespace Infrastructure.Data
         {
             await _context.Set<TEntity>().AddRangeAsync(entities);
         }
+
+        public void Update(TEntity entity)
+        {
+            _context.Set<TEntity>().Update(entity);
+        }
     }
 }

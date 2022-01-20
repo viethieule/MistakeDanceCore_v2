@@ -19,62 +19,66 @@ namespace Application
 
     public class UpdateScheduleService : TransactionalAppService<UpdateScheduleRq, UpdateScheduleRs>
     {
-        public UpdateScheduleService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly ScheduleDTC _scheduleDTC;
+        private readonly ClassDTC _classDTC;
+        private readonly TrainerDTC _trainerDTC;
+        private readonly SessionDTC _sessionDTC;
+        private readonly ISessionsGenerator _sessionsGenerator;
+
+        public UpdateScheduleService
+        (
+            ScheduleDTC scheduleDTC,
+            ClassDTC classDTC,
+            TrainerDTC trainerDTC,
+            SessionDTC sessionDTC,
+            ISessionsGenerator sessionsGenerator,
+            IUnitOfWork unitOfWork
+        ) : base(unitOfWork)
         {
+            _scheduleDTC = scheduleDTC;
+            _classDTC = classDTC;
+            _trainerDTC = trainerDTC;
+            _sessionDTC = sessionDTC;
+            _sessionsGenerator = sessionsGenerator;
         }
 
         protected override async Task<UpdateScheduleRs> DoTransactionalRunAsync(UpdateScheduleRq rq)
         {
-            Schedule schedule = await _unitOfWork.Schedules.SingleByIdAsync(rq.Schedule.Id.Value);
-            
             ScheduleDTO scheduleDTO = rq.Schedule;
             if (!scheduleDTO.ClassId.HasValue)
             {
-                Class clas = new Class(scheduleDTO.ClassName);
-                await _unitOfWork.Classes.CreateAsync(clas);
-                await _unitOfWork.SaveChangesAsync();
-                scheduleDTO.ClassId = clas.Id;
+                ClassDTO classDTO = new ClassDTO() { Name = rq.Schedule.BranchName };
+                await _classDTC.CreateAsync(classDTO);
+                scheduleDTO.ClassId = classDTO.Id;
             }
 
             if (!scheduleDTO.TrainerId.HasValue)
             {
-                Trainer trainer = new Trainer(scheduleDTO.TrainerName);
-                await _unitOfWork.Trainers.CreateAsync(trainer);
-                await _unitOfWork.SaveChangesAsync();
-                scheduleDTO.TrainerId = trainer.Id;
+                TrainerDTO trainerDTO = new TrainerDTO() { Name = rq.Schedule.TrainerName };
+                await _trainerDTC.CreateAsync(trainerDTO);
+                scheduleDTO.TrainerId = trainerDTO.Id;
             }
-
-            Schedule newSchedule = new Schedule
-            (
-                song: scheduleDTO.Song,
-                openingDate: scheduleDTO.OpeningDate,
-                startTime: scheduleDTO.StartTime,
-                daysPerWeek: scheduleDTO.DaysPerWeek,
-                branchId: scheduleDTO.BranchId.Value,
-                classId: scheduleDTO.ClassId.Value,
-                trainerId: scheduleDTO.TrainerId.Value
-            );
 
             bool shouldUpdateSessions = schedule.ShouldUpdateSessions(newSchedule);
 
-            schedule.Update(newSchedule);
+            await _scheduleDTC.UpdateAsync(scheduleDTO);
 
             if (shouldUpdateSessions)
             {
-                List<Session> sessions = await _unitOfWork.Sessions.ListAsync(x => x.ScheduleId == schedule.Id);
+                List<SessionDTO> sessions = await _sessionDTC.ListByScheduleIdAsync(scheduleDTO.Id.Value);
 
-                List<Session> newSessions = schedule.GenerateSessions(scheduleDTO.TotalSessions.Value);
+                List<SessionDTO> newSessions = _sessionsGenerator.Generate(scheduleDTO);
 
-                List<Session> toBeAddedSessions = newSessions.Where(x => sessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
-                List<Session> toBeRemovedSessions = sessions.Where(x => !newSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
-                List<int> toBeRemovedSessionIds = toBeRemovedSessions.Select(y => y.Id).ToList();
+                List<SessionDTO> toBeAddedSessions = newSessions.Where(x => sessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
+                List<SessionDTO> toBeRemovedSessions = sessions.Where(x => !newSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
+                List<int> toBeRemovedSessionIds = toBeRemovedSessions.Select(y => y.Id.Value).ToList();
 
-                sessions.RemoveAll(x => toBeRemovedSessionIds.Contains(x.Id));
+                sessions.RemoveAll(x => toBeRemovedSessionIds.Contains(x.Id.Value));
                 sessions.AddRange(toBeAddedSessions);
                 
                 for (int i = 0; i < sessions.Count; i++)
                 {
-                    sessions[i].SetNumber(i + 1);
+                    sessions[i] = i + 1;
                 }
 
                 await _unitOfWork.Sessions.AddRangeAsync(toBeAddedSessions);

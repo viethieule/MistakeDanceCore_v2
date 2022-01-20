@@ -1,4 +1,5 @@
 using API.Extensions;
+using Application;
 using Application.Common;
 using Application.Interfaces;
 using Infrastructure.Data;
@@ -38,6 +39,7 @@ namespace API
 
             services.AddScoped<IUnitOfWork, EFUnitOfWork>();
             services.AddScopedAsSelfByConvention(typeof(BaseAppService<,>).Assembly, type => type.Name.EndsWith("Service"));
+            services.AddSingleton<ISessionsGenerator, SessionsGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
